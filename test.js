@@ -64,3 +64,5 @@ try {
 }
 
 console.log(".chat_quote_profilepic", "something")
+
+destroy(function () {})

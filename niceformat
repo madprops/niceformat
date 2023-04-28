@@ -2,13 +2,13 @@
 # This is a script to turn javascript into my personal preferred format
 
 # Format file
-def format_file(path)
+def format_file(path, save)
   original = File.read(path)
   lines = []
 
   original.each_line do |line|
     new_line = line.rstrip
-    new_line = new_line.gsub(/function \((.*)\)/, '(\1) =>')
+    new_line = new_line.gsub(/function \(([^)]*)\)/, '(\1) =>')
     new_line = new_line.gsub(/(\s*)\} else/, "\\1}\n\\1else")
     new_line = new_line.gsub(/(\s*)\} catch/, "\\1}\n\\1catch")
     new_line = new_line.gsub(/"/, "`")
@@ -20,9 +20,15 @@ def format_file(path)
 
   if original != modified
     puts "Modified #{path}"
+
+    if not save
+      puts modified
+    end
   end
 
-  File.write(path, modified)
+  if save
+    File.write(path, modified)
+  end
 end
 
 def main()
@@ -40,6 +46,7 @@ def main()
 
   force = false
   recursion = false
+  save = false
 
   if ARGV[1]
     if ARGV[1].include?("y")
@@ -48,6 +55,10 @@ def main()
 
     if ARGV[1].include?("r")
       recursion = true
+    end
+
+    if ARGV[1].include?("s")
+      save = true
     end
   end
 
@@ -92,7 +103,7 @@ def main()
 
   # Do the actual operations
   valid_paths.each do |path|
-    format_file(path)
+    format_file(path, save)
   end
 
   puts "Done."
