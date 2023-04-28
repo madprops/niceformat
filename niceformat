@@ -4,32 +4,24 @@
 # Format file
 def format_file(path, save)
   original = File.read(path)
-  lines = []
 
-  original.each_line do |line|
-    new_line = line.rstrip
-    new_line = new_line.gsub(/function \(([^)]*)\)/, "(\\1) =>")
-    new_line = new_line.gsub(/(\s*)\} else/, "\\1}\n\\1else")
-    new_line = new_line.gsub(/(\s*)\} catch/, "\\1}\n\\1catch")
-    new_line = new_line.gsub(/(\s*)(.*)\.then/, "\\1\\2\n\\1.then")
-    new_line = new_line.gsub(/(\s*)(.*)\.catch/, "\\1\\2\n\\1.catch")
-    new_line = new_line.gsub(/(?<!`)"([^"]*)"(?!`)/, "`\\1`")
-    lines.push(new_line)
-  end
-
-  modified = lines.join("\n")
+  modified = original
+  modified = modified.gsub(/function \(([^)]*)\)/, "(\\1) =>")
+  modified = modified.gsub(/(\s*)\} else/, "\\1}\\1else")
+  modified = modified.gsub(/(\s*)\} catch/, "\\1}\\1catch")
+  modified = modified.gsub(/(\s*)(.*)\.then/, "\\1\\2\\1.then")
+  modified = modified.gsub(/(\s*)(.*)\.catch/, "\\1\\2\\1.catch")
+  modified = modified.gsub(/(?<!`)"([^"]*)"(?!`)/, "`\\1`")
   modified = modified.gsub(/\n{3,}/, "\n\n")
 
   if original != modified
     puts "Modified #{path}"
 
-    if not save
+    if save
+      File.write(path, modified)
+    else
       puts modified
     end
-  end
-
-  if save
-    File.write(path, modified)
   end
 end
 
