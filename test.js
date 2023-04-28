@@ -66,3 +66,11 @@ try {
 console.log(".chat_quote_profilepic", "something")
 
 destroy(function () {})
+
+if (a) {
+  dothis().then(x => {
+    //
+  }).catch (x => {
+    //
+  })
+}
