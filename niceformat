@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+# This is a script to turn javascript into my personal preferred format
+
+# Format file
+def format_file(path)
+  original = File.read(path)
+  lines = []
+
+  original.each_line do |line|
+    new_line = line.rstrip
+    new_line = new_line.gsub(/function \((.*)\)/, '(\1) =>')
+    new_line = new_line.gsub(/(\s*)\} else/, "\\1}\n\\1else")
+    new_line = new_line.gsub(/(\s*)\} catch/, "\\1}\n\\1catch")
+    new_line = new_line.gsub(/"/, "`")
+    lines.push(new_line)
+  end
+
+  modified = lines.join("\n")
+  modified = modified.gsub(/\n{3,}/, "\n\n")
+
+  if original != modified
+    puts "Modified #{path}"
+  end
+
+  File.write(path, modified)
+end
+
+def main()
+  # Ignore files from these places
+  filters = ["/node_modules/"]
+
+  # Only work on these extensions
+  exts = [".js"]
+
+  # Path argument with some cleanup
+  if not ARGV[0]
+    puts "A path argument is required."
+    return
+  end
+
+  force = false
+  recursion = false
+
+  if ARGV[1]
+    if ARGV[1].include?("y")
+      force = true
+    end
+
+    if ARGV[1].include?("r")
+      recursion = true
+    end
+  end
+
+  path_arg = ARGV[0].gsub(/\/+$/, "")
+
+  # Get all paths starting from path_arg
+  if recursion
+    p = File.join(path_arg, "**", "*")
+  else
+    p = File.join(path_arg, "*")
+  end
+
+  paths = Dir.glob(p).select { |e| File.file? e }
+
+  # Hold valid paths here
+  valid_paths = []
+
+  paths.each do |path|
+    if filters.any? { |x| path.include? x }
+      next
+    end
+
+    if not exts.include?(File.extname(path))
+      next
+    end
+
+    valid_paths.push(path)
+  end
+
+  # Ask for confirmation
+  puts "Format files inside " + path_arg + " (y/n)"
+  puts "Number of files to be processed is " + valid_paths.length.to_s
+
+  if not force
+    ans = $stdin.gets.strip
+
+    if ans != "y" and ans != "Y"
+      puts "Doing nothing. Exiting."
+      return
+    end
+  end
+
+  # Do the actual operations
+  valid_paths.each do |path|
+    format_file(path)
+  end
+
+  puts "Done."
+end
+
+# Trap ^C
+Signal.trap("INT") {
+  exit
+}
+
+# Start here
+if __FILE__ == $0
+  main()
+end
