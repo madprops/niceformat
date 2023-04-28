@@ -8,12 +8,12 @@ def format_file(path, save)
 
   original.each_line do |line|
     new_line = line.rstrip
-    new_line = new_line.gsub(/function \(([^)]*)\)/, '(\1) =>')
+    new_line = new_line.gsub(/function \(([^)]*)\)/, "(\\1) =>")
     new_line = new_line.gsub(/(\s*)\} else/, "\\1}\n\\1else")
     new_line = new_line.gsub(/(\s*)\} catch/, "\\1}\n\\1catch")
     new_line = new_line.gsub(/(\s*)(.*)\.then/, "\\1\\2\n\\1.then")
     new_line = new_line.gsub(/(\s*)(.*)\.catch/, "\\1\\2\n\\1.catch")
-    new_line = new_line.gsub(/"/, "`")
+    new_line = new_line.gsub(/(?<!`)"([^"]*)"(?!`)/, "`\\1`")
     lines.push(new_line)
   end
 
