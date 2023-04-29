@@ -58,33 +58,38 @@ def main()
 
   path_arg = ARGV[0].gsub(/\/+$/, "")
 
-  # Get all paths starting from path_arg
-  if recursion
-    p = File.join(path_arg, "**", "*")
-  else
-    p = File.join(path_arg, "*")
-  end
-
-  paths = Dir.glob(p).select { |e| File.file? e }
-
   # Hold valid paths here
   valid_paths = []
 
-  paths.each do |path|
-    if filters.any? { |x| path.include? x }
-      next
+  if exts.include?(File.extname(path_arg))
+    valid_paths.push(path_arg)
+  end
+
+  if valid_paths.length == 0
+    # Get all paths starting from path_arg
+    if recursion
+      p = File.join(path_arg, "**", "*")
+    else
+      p = File.join(path_arg, "*")
     end
 
-    if not exts.include?(File.extname(path))
-      next
-    end
+    paths = Dir.glob(p).select { |e| File.file? e }
 
-    valid_paths.push(path)
+    paths.each do |path|
+      if filters.any? { |x| path.include? x }
+        next
+      end
+
+      if not exts.include?(File.extname(path))
+        next
+      end
+
+      valid_paths.push(path)
+    end
   end
 
   # Ask for confirmation
-  puts "Format files inside " + path_arg + " (y/n)"
-  puts "Number of files to be processed is " + valid_paths.length.to_s
+  puts "Format file(s) (#{valid_paths.length.to_s}) (y/n)"
 
   if not force
     ans = $stdin.gets.strip
